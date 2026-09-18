@@ -35,43 +35,37 @@ public class Login {
 
     //Check if the username is correctly formatted
     public boolean checkUserName() {
-        boolean User;
+        boolean User = false;
         
         // Username must contain an underscore
         // Username must be no more than 5 characters
         if (username.contains("_") && username.length() <= 5) {
             System.out.println("User successfully captured");
             User = true;
-        } else {
-            System.out.println("User is not correctly formatted; please ensure that your username contains "
-                    + "an underscore and is no more than five characters");
-            User = false;
         }
+
         return User;
     }
     
 
     //Check if the password meets the complexity requirements
     public boolean checkPasswordComplexity() {
-        boolean Pass;
+        boolean Pass = false;
 
         String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
         
         if (password.matches(passwordRegex)){
             Pass = true;
             System.out.println("Password successfully captured");
-        } else{
-            Pass = false;
-            System.out.println("Password is not correctly formatted; please ensure that the password contains"
-                    + "at least 8 characters, a capital letter, an number, and a special character. ");
         }
+
         
         return Pass;
     }
 
     //Check cell phone number
     public boolean checkCellPhoneNumber() {
-        boolean cell;
+        boolean cell = false;
 
         /*
          * Regular expression:
@@ -88,15 +82,13 @@ public class Login {
          * Accessed 18 September 2026.
          */
 
-        String phoneRegex = "^+27[6-8][0-9]{8}$";
+        String phoneRegex = "^\\+27[0-9]{9}$";
 
          if (cellPhoneNumber.matches(phoneRegex)){
             cell = true;
             System.out.println("Cell phone number successfully added");
-        }else{
-            cell = false;
-            System.out.println("Cell phone number incorrectly formatted or does not contail international code. ");
         }
+
         return cell;
     }
     
