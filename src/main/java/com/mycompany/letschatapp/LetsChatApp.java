@@ -34,7 +34,7 @@ public class LetsChatApp {
         System.out.println("Enter South Aftrican cell phone number (must start with '+27') : ");
         String cellPhoneNumber = input.nextLine();
         
-        Login user = new  Login(firstName, lastName, username,password,cellPhoneNumber);
+        Login user = new  Login username, password, cellPhoneNumber, firstName, lastName);
 
         //Display registration result
         System.out.println("\n" + user.registerUser());
