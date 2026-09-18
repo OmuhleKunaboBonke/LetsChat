@@ -67,22 +67,10 @@ public class Login {
     public boolean checkCellPhoneNumber() {
         boolean cell = false;
 
-        /*
-         * Regular expression:
-         * ^\\+27[0-9]{9}$
-         *
-         * ^       = beginning of the number
-         * \\+27   = South African international code (+27)
-         * [0-9]   = a number from 0 to 9
-         * {9}     = exactly 9 digits
-         * $       = end of the number
-         *
-         * Regex adapted with assistance from OpenAI ChatGPT.
-         * OpenAI (2026) ChatGPT. 
-         * Accessed 18 September 2026.
+        
          */
 
-        String phoneRegex = "^\\+27[0-9]{9}$";\;
+        String phoneRegex = "^\\+27[0-9]{9}$";
 
          if (cellPhoneNumber.matches(phoneRegex)){
             cell = true;
