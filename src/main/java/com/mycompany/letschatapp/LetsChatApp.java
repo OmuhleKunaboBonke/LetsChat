@@ -6,7 +6,6 @@ package com.mycompany.letschatapp;
 
 import java.util.Scanner;
 
-
 /**
  *
  * @author Student
@@ -18,8 +17,12 @@ public class LetsChatApp {
         Scanner input = new Scanner (System.in);
         
         // Registration
-        System.out.println("===== REGISTRATION =====");
+        System.out.println("=================================");
+        System.out.println("     REGISTRATION AND LOGIN");
+        System.out.println("=================================");
         
+         System.out.println("\n--- CREATE ACCOUNT ---");
+
         System.out.println("Enter your first name: ");
         String firstName = input.nextLine();
         
@@ -35,31 +38,43 @@ public class LetsChatApp {
         System.out.println("Enter South Aftrican cell phone number: ");
         String cellPhoneNumber = input.nextLine();
         
-        //Registration object
-        Registration registration = new Registration();
-        
-        // Display registration result
-        System.out.println();
-        System.out.println(registration.registerUser());
-        
-        // Only continue to login if registration was successful
-        if (registration.checkUserName() && registration.checkPasswordComplexity()
-                && registration.checkCellPhoneNumber()) {
-            
-            System.out.println();
-            System.out.println("==== LOGIN ====");
-            
-            System.out.println("Enter username: ");
-            String loginUsername = input.nextLine();
-            
-            System.out.println("Enter password: ");
-            String loginPassword = input.nextLine();
-            
-            //Create Login object
-            Login login = new Login(registration.getUsername(), registration.getPassword(), firstName, lastName);
-        
-        
+        Login user = new Login(username, password, cellPhoneNumber, firstName, lastName);
+
+        //Display registration result
+        System.out.println("\n" + user.registerUser());
+
+        // -----------------------------------------
+        // LOGIN
+        // -----------------------------------------
+
+        if (user.checkUserName()
+                && user.checkPasswordComplexity()
+                && user.checkCellPhoneNumber()) {
+
+            System.out.println("\n--- LOGIN ---");
+
+            System.out.print("Enter username: ");
+            String enteredUsername = input.nextLine();
+
+            System.out.print("Enter password: ");
+            String enteredPassword = input.nextLine();
+
+            // Check login details
+            boolean loginSuccessful =
+                    user.loginUser(enteredUsername, enteredPassword);
+
+            // Display login status
+            System.out.println(
+                    user.returnLoginStatus(loginSuccessful)
+            );
+
+        } else {
+
+            System.out.println("\nPlease correct your registration details "
+                    + "before attempting to log in.");
         }
 
+        input.close();
+
     }
-}    
+}   
