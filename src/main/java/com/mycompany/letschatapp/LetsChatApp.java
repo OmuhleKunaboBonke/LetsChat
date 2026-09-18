@@ -17,41 +17,32 @@ public class LetsChatApp {
         Scanner input = new Scanner (System.in);
         
         // Registration
-        System.out.println("=================================");
-        System.out.println("     REGISTRATION AND LOGIN");
-        System.out.println("=================================");
+        System.out.println("REGISTRATION AND LOGIN");
         
-         System.out.println("\n--- CREATE ACCOUNT ---");
-
         System.out.println("Enter your first name: ");
         String firstName = input.nextLine();
         
         System.out.println("Enter your last name: ");
         String lastName = input.nextLine();
         
-        System.out.println("Enter your username: ");
+        System.out.println("Enter your username (must contain a '_' ): ");
         String username = input.nextLine();
         
-        System.out.println("Enter your password: ");
+        System.out.println("Enter your password (must contain at least at least 8 chars, a capital letter, a number & : ");
         String password = input.nextLine();
         
-        System.out.println("Enter South Aftrican cell phone number: ");
+        System.out.println("Enter South Aftrican cell phone number (must start with '+27') : ");
         String cellPhoneNumber = input.nextLine();
         
-        Login user = new Login(username, password, cellPhoneNumber, firstName, lastName);
+        Login user = new  Login(firstName, lastName, username,password,cellPhoneNumber);
 
         //Display registration result
         System.out.println("\n" + user.registerUser());
 
-        // -----------------------------------------
-        // LOGIN
-        // -----------------------------------------
+       //Login
+        if (user.checkUserName() && user.checkPasswordComplexity() && user.checkCellPhoneNumber()) {
 
-        if (user.checkUserName()
-                && user.checkPasswordComplexity()
-                && user.checkCellPhoneNumber()) {
-
-            System.out.println("\n--- LOGIN ---");
+            System.out.println(" LOGIN ");
 
             System.out.print("Enter username: ");
             String enteredUsername = input.nextLine();

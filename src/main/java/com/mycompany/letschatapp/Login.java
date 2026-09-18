@@ -4,6 +4,8 @@
  */
 package com.mycompany.letschatapp;
 
+   
+
 /**
  *
  * @author Student
@@ -22,9 +24,7 @@ public class Login {
     private String loginPassword;
 
     // Constructor
-    public Login(String username, String password,
-                 String cellPhoneNumber,
-                 String firstName, String lastName) {
+    public Login(String firstName,String lastName,String username,String password, String cellPhoneNumber){
 
         this.username = username;
         this.password = password;
@@ -35,65 +35,43 @@ public class Login {
 
     //Check if the username is correctly formatted
     public boolean checkUserName() {
+        boolean User;
         
         // Username must contain an underscore
         // Username must be no more than 5 characters
         if (username.contains("_") && username.length() <= 5) {
-            return true;
+            System.out.println("User successfully captured");
+            User = true;
         } else {
-            return false;
+            System.out.println("User is not correctly formatted; please ensure that your username contains "
+                    + "an underscore and is no more than five characters");
+            User = false;
         }
+        return User;
     }
     
 
     //Check if the password meets the complexity requirements
     public boolean checkPasswordComplexity() {
+        boolean Pass;
 
-        boolean hasCapitalLetter = false;
-        boolean hasNumber = false;
-        boolean hasSpecialCharacter = false;
-
-        // Password must contain at least 8 characters
-        if (password.length() < 8) {
-            return false;
+        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+        
+        if (password.matches(passwordRegex)){
+            Pass = true;
+            System.out.println("Password successfully captured");
+        } else{
+            Pass = false;
+            System.out.println("Password is not correctly formatted; please ensure that the password contains"
+                    + "at least 8 characters, a capital letter, an number, and a special character. ");
         }
-
-        // Check every character in the password
-        for (int i = 0; i < password.length(); i++) {
-
-            char character = password.charAt(i);
-
-            // Check for capital letter
-            if (Character.isUpperCase(character)) {
-                hasCapitalLetter = true;
-            }
-
-            // Check for number
-            if (Character.isDigit(character)) {
-                hasNumber = true;
-            }
-
-            // Check for special character
-            if (!Character.isLetterOrDigit(character)) {
-                hasSpecialCharacter = true;
-            }
-        }
-
-        // All requirements must be met
-        if (hasCapitalLetter
-                && hasNumber
-                && hasSpecialCharacter) {
-
-            return true;
-
-        } else {
-
-            return false;
-        }
+        
+        return Pass;
     }
 
     //Check cell phone number
     public boolean checkCellPhoneNumber() {
+        boolean cell;
 
         /*
          * Regular expression:
@@ -110,10 +88,18 @@ public class Login {
          * Accessed 18 September 2026.
          */
 
-        String phonePattern = "^\\+27[0-9]{9}$";
+        String phoneRegex = "^+27[6-8][0-9]{8}$";
 
-        return cellPhoneNumber.matches(phonePattern);
+         if (cellPhoneNumber.matches(phoneRegex)){
+            cell = true;
+            System.out.println("Cell phone number successfully added");
+        }else{
+            cell = false;
+            System.out.println("Cell phone number incorrectly formatted or does not contail international code. ");
+        }
+        return cell;
     }
+    
 
     //Register User
     public String registerUser() {
@@ -201,3 +187,13 @@ public class Login {
     }
     
 }
+/* Reference list
+
+Oracle (2025) *String (Java SE API documentation)*. Available at: [Oracle Java documentation](https://docs.oracle.com/en/java/javase/?utm_source=chatgpt.com) (Accessed: 18 September 2026).
+
+Oracle (2025) *Package java.util.regex (Java SE API documentation)*. Available at: [Oracle Java documentation – java.util.regex](https://docs.oracle.com/en/java/javase/?utm_source=chatgpt.com) (Accessed: 18 September 2026).
+
+Oracle (2025) *Java Tutorials: Regular Expressions*. Available at: [Oracle Java Tutorials](https://docs.oracle.com/javase/tutorial/essential/regex/?utm_source=chatgpt.com) (Accessed: 18 September 2026).
+
+Available next action: Create a downloadable DOCX file here in this chat containing the editable prose above*/
+
