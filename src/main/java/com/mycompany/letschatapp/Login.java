@@ -82,7 +82,7 @@ public class Login {
          * Accessed 18 September 2026.
          */
 
-        String phoneRegex = "^\\+27[0-9]{9}$";
+        String phoneRegex = "^\\+27[0-9]{9}$";;
 
          if (cellPhoneNumber.matches(phoneRegex)){
             cell = true;
