@@ -4,6 +4,7 @@
 
 package com.mycompany.letschatapp;
 
+import static java.awt.SystemColor.text;
 import java.util.Scanner;
 
 /**
@@ -66,6 +67,52 @@ public class LetsChatApp {
         }
 
         input.close();
+        
+        
+        System.out.println("\n Welcome To LetsChat.");
+        
+        System.out.println("How many messages do you want to enter? ");
+        int limit = input.nextInt();
+        int count = 0;
+        
+        boolean running = true;
+        while (running){
+            System.out.println("\n Send Messages");
+            System.out.println("2) Show recently sent messages");
+            System.out.println("3) Quit");
+            int option = Integer.parseInt(input.nextLine());
+            
+            if (option == 1){
+                 if (count >= limit){
+                     System.out.println("Recipient cell phone number: ");
+                     String recpCellPhoneNumber = input.nextLine();
+                     System.out.println("Message: ");
+                     String text = input.nextLine();
+                     
+                     if (text.length() > 250){
+                         System.out.println("Please enter message that is less than 50 characters. ");
+                         continue;
+                     
+                     }
+                     
+                 
+                 
+                 }
+            
+            
+            }
 
+        
+        
+        
+        }
+        
+        
+        
+        
+     Message message = new Message();
+     
+     
+     
     }
 }   
