@@ -38,4 +38,21 @@ public class Message {
    
     }
     
+    //Number must start with +27
+    public String checkRecipientCell(){
+        boolean cell = false;
+         
+        String phoneRegex = "^\\+27[0-9]{9}$";//code reusablity 
+
+        if (recipient.matches(phoneRegex)){
+            cell = true;
+            System.out.println("Cell phone number successfully added");
+        }else {
+            System.out.println("Cell phone number is incorrectly formatted "
+                    + "or does not contain an international code.");
+        
+        }
+
+    }
+  
 }
