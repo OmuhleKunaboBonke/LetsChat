@@ -72,7 +72,7 @@ public class LetsChatApp {
         System.out.println("\n Welcome To LetsChat.");
         
         System.out.println("How many messages do you want to enter? ");
-        int limit = input.nextInt();
+        int limit = Integer.parseInt(input.nextLine());
         int count = 0;
         
         boolean running = true;
@@ -94,25 +94,15 @@ public class LetsChatApp {
                          continue;
                      
                      }
-                     
+                     Message msg = new Message();
+                     String cellCheck = msg.recpCellPhoneNumber();
                  
                  
                  }
             
-            
             }
 
-        
-        
-        
         }
-        
-        
-        
-        
-     Message message = new Message();
-     
-     
-     
+
     }
 }   
