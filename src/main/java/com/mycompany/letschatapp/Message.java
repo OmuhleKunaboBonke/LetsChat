@@ -1,3 +1,4 @@
+package com.mycompany.letschatapp;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,10 +14,10 @@ import java.util.Random;
  * @author Student
  */
 public class Message {
-    Random r = new Random();
+    private static final Random r = new Random();
    
  
-    private String messageID =  String.valueOf(1000000000L + r.nextInt(900000000));      //random 10 digit number
+    private String messageID;     //random 10 digit number
     private int messageNumber;     //loop counter value
     private String recipient;      //cell phone number of the receiver
     private String text;           //actual message
@@ -40,8 +41,7 @@ public class Message {
     }
     // 1. Check message ID
     public boolean checkMessageID() {
-        return messageID != null
-                && messageID.length() <= 10;
+        return messageID != null && messageID.length() <= 10;
     }
     
     // Recipient must start with the international code +27 followed by 9 digits
@@ -57,11 +57,15 @@ public class Message {
     
      // 3. Create message hash
     public String createMessageHash() {
-    hash = messageID + ":" + messageNumber + ":" + text;
-
-    return hash;
-
+        String[] words = text.trim().split("\\s+");
+        String firstWord = words[0];
+        String lastWord = words[words.length - 1];
+ 
+        return (messageID.substring(0, 2) + ":" + messageNumber + ":"
+                + firstWord + lastWord).toUpperCase();
     }
+
+    
     
      // 4. Send, store or disregard message
     public String SentMessage(int option) {
@@ -91,6 +95,11 @@ public class Message {
     // Returns the total number of messages sent
     public static int returnTotalMessages() {
         return totalSent;
+    }
+    
+    // Escapes backslashes and quotes so the value is safe inside a JSON string
+    private static String escapeJson(String value) {
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
  
     /*

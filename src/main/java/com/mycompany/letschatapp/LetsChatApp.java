@@ -16,7 +16,7 @@ public class LetsChatApp {
         
         Scanner input = new Scanner (System.in);
         
-        // Registration
+        /*// Registration
         System.out.println("===== REGISTRATION =====");
         
         System.out.println("Enter your first name: ");
@@ -65,21 +65,19 @@ public class LetsChatApp {
                     + "before attempting to log in.");
         }
 
-        input.close();
-        return;
-    }    
-    public static void runQuickChat(Scanner input) {
-        
- 
+        input.close();*/
+    
         System.out.println("\nWelcome to QuickChat.");
  
         // how many messages the user wants to enter
         int limit = 0;
         while (limit <= 0) {
             System.out.print("How many messages do you wish to enter? ");
-            String answer = input.nextLine().trim();
-            if (answer.matches("\\d+")) {
+           String answer = input.nextLine().trim();
+            try {
                 limit = Integer.parseInt(answer);
+            } catch (NumberFormatException e) {
+                limit = 0;
             }
             if (limit <= 0) {
                 System.out.println("Please enter a whole number greater than 0.");
@@ -179,5 +177,6 @@ public class LetsChatApp {
             System.out.println("\nFull details of messages sent:");
             System.out.println(Message.printMessages());
         }
+       
     }
 }
