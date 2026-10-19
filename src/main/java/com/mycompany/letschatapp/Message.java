@@ -66,12 +66,18 @@ public class Message {
             String last;
             
             if (clean.indexOf(" ") == -1){
-                
-                
+                first = clean;
+                last = clean;
             
+            }else {
+                // first word = everything before the first space
+                first = clean.substring(0, clean.indexOf(" "));
+                // last word = everything after the last space
+                last = clean.substring(clean.lastIndexOf(" ") + 1);
             
             }
-            
+            // [LOGIC] join the parts and change to CAPITAL LETTERS
+            return (messageID.substring(0, 2) + ":" + messageNumber + ":" + first + last).toUpperCase();
         
         
         }
