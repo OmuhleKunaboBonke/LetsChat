@@ -30,6 +30,15 @@ public class MessageTest {
                 "Cell phone number successfully captured.",
                 message.checkRecipientCell());
     }
+    
+     @Test
+    void invalidRecipientNumber() {
+        Message message = new Message(
+                0, "08575975889", "Hello");
+
+        assertTrue(
+                message.checkRecipientCell().contains("incorrectly"));
+    }
 
     
 }
