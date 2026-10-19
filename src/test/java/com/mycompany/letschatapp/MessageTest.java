@@ -21,4 +21,15 @@ public class MessageTest {
         assertTrue(message.checkMessageID());
     }
     
+     @Test
+    void validRecipientNumber() {
+        Message message = new Message(
+                0, "+27718693002", "Hello");
+
+        assertEquals(
+                "Cell phone number successfully captured.",
+                message.checkRecipientCell());
+    }
+
+    
 }
