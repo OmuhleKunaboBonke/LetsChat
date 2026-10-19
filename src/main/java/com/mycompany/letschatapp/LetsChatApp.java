@@ -4,7 +4,6 @@
 
 package com.mycompany.letschatapp;
 
-import static java.awt.SystemColor.text;
 import java.util.Scanner;
 
 /**
@@ -67,42 +66,131 @@ public class LetsChatApp {
         }
 
         input.close();
+    }    
+        // Part 2
         
+    public static void runLetsChat(Scanner input){
         
+        //welcome message
         System.out.println("\n Welcome To LetsChat.");
-        
-        System.out.println("How many messages do you want to enter? ");
-        int limit = Integer.parseInt(input.nextLine());
-        int count = 0;
-        
-        boolean running = true;
-        while (running){
-            System.out.println("\n Send Messages");
-            System.out.println("2) Show recently sent messages");
-            System.out.println("3) Quit");
-            int option = Integer.parseInt(input.nextLine());
-            
-            if (option == 1){
-                 if (count >= limit){
-                     System.out.println("Recipient cell phone number: ");
-                     String recpCellPhoneNumber = input.nextLine();
-                     System.out.println("Message: ");
-                     String text = input.nextLine();
-                     
-                     if (text.length() > 250){
-                         System.out.println("Please enter message that is less than 50 characters. ");
-                         continue;
-                     
-                     }
-                     Message msg = new Message();
-                     String cellCheck = msg.recpCellPhoneNumber();
-                 
-                 
-                 }
+
+        // [INPUT] how many messages the user wants to enter
+        int limit = 0;
+        while (limit <= 0){
+            System.out.println("How many messages do you wish to enter? ");
+            String answer = input.nextLine().trim();
+            if (answer.matches("\\d+")){
+                limit = Integer.parseInt(answer);
             
             }
-
+            if (limit <= 0){
+                System.out.println("Please enter a whole number greater than 0.");
+            
+            }
         }
+        boolean messagesEntered = false;   // true once the user has used up their messages
+        
+        // WHILE LOOP: the application runs until the user chooses Quit
+        boolean running = true;
+        while (running) {
+            System.out.println("\n1) Send Messages");
+            System.out.println("2) Show recently sent messages");
+            System.out.println("3) Quit");
+            String choice = input.nextLine().trim();
+            
+            if (choice.equals("1")){
+                
+                if (messagesEntered){
+                    System.out.println("You have already entered your " + limit + "message(s).");
+              
+                }else {
+                    // FOR loop: only the set number of messages can be entered
+                    for (int i = 0; i < limit; i++) {
+                        System.out.println("\\n--- Message" + (i + 1) + " of " + limit + " ---");
+                        
+                    }
+                    
+                    System.out.println("\"\\nTotal messages sent: " + Message.returnTotalMessages());
+                
+                }
+              
+            }else if (choice.equals("2")){
+                System.out.println("Coming Soon. ");
+            
+            }else if (choice.equals("3")){
+                running = false;
+            
+            }else {
+                System.out.println("Please enter 1, 2 or 3.");
+            
+            }
+            
+        }   
+    }    
+    // Captures, checks and handles ONE message. i = loop counter (message number).
+    private static void captureMessage(Scanner input, int i) {
 
+        Message msg = null;
+        boolean valid = false;
+        
+        // Keep asking until both the recipient number and the message are acceptable
+        while (!valid){
+            System.out.print("Recipient cell number: ");
+            String number = input.nextLine().trim();
+            System.out.print("Message: ");
+            String text = input.nextLine();
+            
+            if (text.trim().isEmpty()){
+                System.out.println("Message cannot be empty.");
+                continue;
+            
+            }
+            // message length is checked here (250 characters maximum)
+            if (text.length() > 250) {
+                System.out.println("Please enter a message of less than 250 characters.");
+                continue;
+            }
+            msg = new Message(i, number, text);
+            
+            // Check the recipient's number
+            String cellCheck = msg.checkRecipientCell();
+            System.out.println(cellCheck);
+            valid = cellCheck.startsWith("Cell phone number successfully");
+        
+        }
+        System.out.println("Message sent");
+        
+        // Send, disregard or store the message?
+        String status = "";
+        boolean done = false;
+        while (!done) {
+            System.out.println("1) Send Message");
+            System.out.println("2) Disregard Message");
+            System.out.println("3) Store Message to send later");
+            String option = input.nextLine().trim();
+ 
+            
+            int number = 0;
+            if (option.equals("1")) number = 1;
+            else if (option.equals("2")) number = 2;
+            else if (option.equals("3")) number = 3;
+ 
+            status = msg.SentMessage(number);
+            System.out.println(status);
+            done = number != 0;  // repeat until a valid option is chosen
+        }
+ 
+        // After "Disregard", the user must press 0 to delete the message
+        if (status.equals("Press 0 to delete the message.")) {
+            if (input.nextLine().trim().equals("0")) {
+                System.out.println("Message deleted.");
+            }
+        }
+ 
+        // show the full details of the messages sent so far
+        if (status.equals("Message successfully sent.")) {
+            System.out.println("\nFull details of messages sent:");
+            System.out.println(Message.printMessages());
+        }
     }
-}   
+}

@@ -4,6 +4,8 @@
  */
 package com.mycompany.letschatapp;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
 /**
@@ -37,14 +39,9 @@ public class Message {
        this.hash = createMessageHash();
    
     }
-    // [logic] builds a random ten-digit ID, one digit per loop pass
-    private static String generateMessageID() {
-        String id = "";
-        for (int i = 0; i < 10; i++) {
-            int digit = (int) (Math.random() * 10);   // 0 to 9
-            id = id + digit;
-        }
-        return id;
+
+    Message() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
     //Message ID must not exceed 10 characters
@@ -52,21 +49,7 @@ public class Message {
         return messageID.length() <= 10;
    
     }
-    // [OUTPUT] confirmation that an ID was created
-    public String createMessageIDMessage() {
-        return "Message ID generated: " + messageID;
-    }
-    
-    //[CHECK] message must be 250 characters or fewer
-    public String checkMessageLength() {
-        if (text.length() <= 250) {
-            return "Message ready to send.";
-        }
-        int tooMany = text.length() - 250;
-        return "Message exceeds 250 characters by " + tooMany
-                + "; please reduce the size.";
-    }
-    
+ 
     //[check] Number starts with +27
     public String checkRecipientCell(){
         boolean cell = false;
@@ -75,16 +58,16 @@ public class Message {
 
         if (recipient.matches(phoneRegex)){
             cell = true;
-            System.out.println("Cell phone number successfully added");
+            return "Cell phone number successfully added";
         }else {
-            System.out.println("Cell phone number is incorrectly formatted "
-                    + "or does not contain an international code.");
+            return "Cell phone number is incorrectly formatted "
+                    + "or does not contain an international code.";
         
         }
-        
-        //Message 00:0:HELLO
-        //first two digits if ID + : + message number + : + first word + last word
-        public String createMessageHash(){
+    }    
+    //Message 00:0:HELLO
+    //first two digits if ID + : + message number + : + first word + last word
+    public String createMessageHash() {
             String clean = text.trim(); //removes spaces at the start and at the end
             String first;
             String last;
@@ -108,9 +91,55 @@ public class Message {
                     .toUpperCase();
      
         }
-        // 1 = send, 2 = disregard, 3 = store (option is passed in so it can be tested)
-        
-
+    // The user's choice is passed in: 1 = send, 2 = disregard, 3 = store
+    public String SentMessage(int option) {
+        if (option == 1) {
+            // keep the full details (ID, Hash, Recipient, Message) of sent messages
+            allSentMessages = allSentMessages
+                    + "Message ID: " + messageID + "\n"
+                    + "Message Hash: " + hash + "\n"
+                    + "Recipient: " + recipient + "\n"
+                    + "Message: " + text + "\n\n";
+            totalSent++;
+            return "Message successfully sent.";
+        } else if (option == 2) {
+            return "Press 0 to delete the message.";
+        } else if (option == 3) {
+            storeMessage();
+            return "Message successfully stored.";
+        }
+        return "Invalid option, please choose 1, 2 or 3.";
     }
-  
+    // Returns all the messages sent while the program is running
+    public static String printMessages() {
+        return allSentMessages;
+    }
+ 
+    // Returns the total number of messages sent
+    public static int returnTotalMessages() {
+        return totalSent;
+    }
+ 
+    /*
+     * Saves the message to messages.json (one JSON object per line).
+     *
+     * Bray, T. (ed.) (2017) The JavaScript Object Notation (JSON) Data
+     * Interchange Format, RFC 8259. Internet Engineering Task Force (IETF).
+     * Available at: https://www.rfc-editor.org/info/std90
+     * (Accessed: 17 October 2026).
+     */   
+    public void storeMessage() {
+        String json = "{\"messageID\": \"" + messageID + "\", "
+                + "\"messageHash\": \"" + hash + "\", "
+                + "\"recipient\": \"" + recipient + "\", "
+                + "\"message\": \"" + text.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}";
+        try {
+            FileWriter file = new FileWriter("messages.json", true);   // true = add to end
+            file.write(json + "\n");
+            file.close();
+        } catch (IOException e) {
+            System.out.println("Could not save the message.");
+        }
+    }    
+
 }
