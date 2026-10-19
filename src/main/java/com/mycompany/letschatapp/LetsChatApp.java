@@ -16,7 +16,7 @@ public class LetsChatApp {
         
         Scanner input = new Scanner (System.in);
         
-        /*// Registration
+        // Registration
         System.out.println("===== REGISTRATION =====");
         
         System.out.println("Enter your first name: ");
@@ -58,6 +58,10 @@ public class LetsChatApp {
             System.out.println(
                     user.returnLoginStatus(loginSuccessful)
             );
+            // [CHECK] messaging is only available after a successful login
+            if (loginSuccessful) {
+                runQuickChat(input);
+            }
 
         } else {
 
@@ -65,8 +69,10 @@ public class LetsChatApp {
                     + "before attempting to log in.");
         }
 
-        input.close();*/
-    
+        input.close();
+    }
+    //Part 2
+    public static void runQuickChat(Scanner input) {
         System.out.println("\nWelcome to QuickChat.");
  
         // how many messages the user wants to enter
