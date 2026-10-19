@@ -52,8 +52,7 @@ public class Login {
     public boolean checkPasswordComplexity() {
         boolean Pass = false;
 
-        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
-        
+        String passwordRegex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d])(?=.*[a-z]).{8,}$";
         if (password.matches(passwordRegex)){
             Pass = true;
             System.out.println("Password successfully captured");
