@@ -18,7 +18,7 @@ public class Message {
     private static int totalSent = 0;
     
     private String messageID;      //random 10 digit number
-    private int messageNumber;    //
+    private int messageNumber;    //loop counter value
     private String recipient;    //cell phone number of the receiver
     private String text;        //actual message
     private String hash;       //e.g. 00:0:HIBOSS
@@ -37,10 +37,34 @@ public class Message {
        this.hash = createMessageHash();
    
     }
+    // [logic] builds a random ten-digit ID, one digit per loop pass
+    private static String generateMessageID() {
+        String id = "";
+        for (int i = 0; i < 10; i++) {
+            int digit = (int) (Math.random() * 10);   // 0 to 9
+            id = id + digit;
+        }
+        return id;
+    }
+    
     //Message ID must not exceed 10 characters
     public boolean checkMessageID(){
         return messageID.length() <= 10;
    
+    }
+    // [OUTPUT] confirmation that an ID was created
+    public String createMessageIDMessage() {
+        return "Message ID generated: " + messageID;
+    }
+    
+    //[CHECK] message must be 250 characters or fewer
+    public String checkMessageLength() {
+        if (text.length() <= 250) {
+            return "Message ready to send.";
+        }
+        int tooMany = text.length() - 250;
+        return "Message exceeds 250 characters by " + tooMany
+                + "; please reduce the size.";
     }
     
     //[check] Number starts with +27
@@ -76,11 +100,16 @@ public class Message {
                 last = clean.substring(clean.lastIndexOf(" ") + 1);
             
             }
+             // remove punctuation such as "," or "?" so "tonight?" becomes "tonight"
+            first = first.replaceAll("[^A-Za-z0-9]", "");
+            last = last.replaceAll("[^A-Za-z0-9]", "");
             // [LOGIC] join the parts and change to CAPITAL LETTERS
-            return (messageID.substring(0, 2) + ":" + messageNumber + ":" + first + last).toUpperCase();
-        
-        
+            return (messageID.substring(0, 2) + ":" + messageNumber + ":" + first + last)
+                    .toUpperCase();
+     
         }
+        // 1 = send, 2 = disregard, 3 = store (option is passed in so it can be tested)
+        
 
     }
   
