@@ -7,6 +7,8 @@ package com.mycompany.letschatapp;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
+
 
 /**
  *
@@ -26,12 +28,12 @@ public class Message {
     private String hash;       //e.g. 00:0:HIBOSS
     
     public Message(int messageNumber, String recipient, String text){
-       // random ten-digit number
-       //[logic of the method] makes a random number between 0 and 9 999 999 999
-       Random r = new Random();
-       long number = (long)(r.nextDouble() * 100000000000L);
-       //[logic] %010d pads with zero so the ID is always 10 digits long
+        // [LOGIC] make a random number between 0 and 9 999 999 999
+        Random r = new Random();
+        long number = (long) (r.nextDouble() * 10000000000L);
+        // [LOGIC] %010d pads with zeros so the ID is always 10 digits long
        this.messageID = String.format("%010d", number);
+       
        this.messageNumber = messageNumber;
        this.recipient = recipient;
        this.text = text;
@@ -40,15 +42,12 @@ public class Message {
    
     }
 
-    Message() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
     //Message ID must not exceed 10 characters
     public boolean checkMessageID(){
         return messageID.length() <= 10;
-   
+        
     }
+
  
     //[check] Number starts with +27
     public String checkRecipientCell(){
@@ -68,53 +67,65 @@ public class Message {
     //Message 00:0:HELLO
     //first two digits if ID + : + message number + : + first word + last word
     public String createMessageHash() {
-            String clean = text.trim(); //removes spaces at the start and at the end
-            String first;
-            String last;
+        String clean = text.trim(); //removes spaces at the start and at the end
+        String first;
+        String last;
             
-            if (clean.indexOf(" ") == -1){
-                first = clean;
-                last = clean;
+        if (clean.indexOf(" ") == -1){
+            first = clean;
+            last = clean;
             
-            }else {
-                // first word = everything before the first space
-                first = clean.substring(0, clean.indexOf(" "));
-                // last word = everything after the last space
-                last = clean.substring(clean.lastIndexOf(" ") + 1);
+        }else {
+            // first word = everything before the first space
+            first = clean.substring(0, clean.indexOf(" "));
+            // last word = everything after the last space
+            last = clean.substring(clean.lastIndexOf(" ") + 1);
             
-            }
-             // remove punctuation such as "," or "?" so "tonight?" becomes "tonight"
-            first = first.replaceAll("[^A-Za-z0-9]", "");
-            last = last.replaceAll("[^A-Za-z0-9]", "");
-            // [LOGIC] join the parts and change to CAPITAL LETTERS
-            return (messageID.substring(0, 2) + ":" + messageNumber + ":" + first + last)
-                    .toUpperCase();
+        }
+        
+        // [LOGIC] join the parts and change to CAPITAL LETTERS
+        return (messageID.substring(0, 2) + ":" + messageNumber + ":" + first + last)
+               .toUpperCase();
      
-        }
-    // The user's choice is passed in: 1 = send, 2 = disregard, 3 = store
-    public String SentMessage(int option) {
-        if (option == 1) {
-            // keep the full details (ID, Hash, Recipient, Message) of sent messages
-            allSentMessages = allSentMessages
-                    + "Message ID: " + messageID + "\n"
-                    + "Message Hash: " + hash + "\n"
-                    + "Recipient: " + recipient + "\n"
-                    + "Message: " + text + "\n\n";
-            totalSent++;
-            return "Message successfully sent.";
-        } else if (option == 2) {
-            return "Press 0 to delete the message.";
-        } else if (option == 3) {
-            storeMessage();
-            return "Message successfully stored.";
-        }
-        return "Invalid option, please choose 1, 2 or 3.";
     }
-    // Returns all the messages sent while the program is running
+    // [INPUT] user chooses to send, disregard or store the message
+    // Receives the Scanner from the main program so only one Scanner is used
+    public String SentMessage(Scanner in) {
+        while (true) {   // repeat until a valid option (1, 2 or 3) is chosen
+            // [OUTPUT] show the options
+            System.out.println("1) Send Message");
+            System.out.println("2) Disregard Message");
+            System.out.println("3) Store Message to send later");
+            String choice = in.nextLine();
+ 
+            if (choice.equals("1")) {
+                // [STORE] add this message to the list of sent messages
+                allSentMessages = allSentMessages + this.toString() + "\n";
+                totalSent++;   // one more message sent
+                return "Message successfully sent";
+ 
+            } else if (choice.equals("2")) {
+                // [INPUT] user must press 0 to confirm the delete
+                System.out.println("Press 0 to delete the message");
+                in.nextLine();
+                return "Message deleted";
+ 
+            } else if (choice.equals("3")) {
+                // [STORE] save the message to the JSON file for later
+                storeMessage();
+                return "Message successfully stored";
+ 
+            } else {
+                // [CHECK] anything else is invalid, so the loop repeats
+                System.out.println("Please enter 1, 2 or 3.");
+            }
+        }
+    }
+    // All messages sent while the program is running
     public static String printMessages() {
         return allSentMessages;
     }
- 
+
     // Returns the total number of messages sent
     public static int returnTotalMessages() {
         return totalSent;
@@ -140,6 +151,13 @@ public class Message {
         } catch (IOException e) {
             System.out.println("Could not save the message.");
         }
-    }    
-
+    }
+    // [OUTPUT] required order: Message ID, Message Hash, Recipient, Message
+    public String toString() {
+        return "Message ID: " + messageID + "\n"
+             + "Message Hash: " + hash + "\n"
+             + "Recipient: " + recipient + "\n"
+             + "Message: " + text + "\n";
+    }
+ 
 }
