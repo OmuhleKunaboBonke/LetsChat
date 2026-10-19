@@ -20,7 +20,7 @@ public class Message {
     private String messageID;     //random 10 digit number
     private int messageNumber;     //loop counter value
     private String recipient;      //cell phone number of the receiver
-    private String text;           //actual message
+    String text;           //actual message
     private String hash;           //e.g. 00:0:HIBOSS
     
     // Shared by all messages
@@ -38,6 +38,10 @@ public class Message {
         this.text = text;
         this.hash = createMessageHash();   // needs the ID, so it is created last
         
+    }
+
+    Message(String id, int i, String recipient, String text) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     // 1. Check message ID
     public boolean checkMessageID() {
@@ -123,5 +127,5 @@ public class Message {
             System.out.println("Could not save the message.");
         }
     }
-    
+
 }

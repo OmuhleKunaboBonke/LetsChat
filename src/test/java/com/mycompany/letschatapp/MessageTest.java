@@ -12,6 +12,55 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Student
  */
 public class MessageTest {
+    // MESSAGE LENGTH TESTS
+    @Test
+    public void testMessageLengthSuccess() {
+ 
+        Message msg = new Message(0, "+27718693002",
+                "Hi Mike, can you join us for dinner tonight?");
+ 
+        assertEquals(
+                "Message ready to send.",
+                msg.text.length()
+        );
+    }
+    
+    @Test
+    public void testRecipientNumberIncorrectlyFormatted() {
+ 
+        Message msg = new Message(1, "08575975889",
+                "Hi Keegan, did you receive the payment?");
+ 
+        assertEquals(
+                "Cell phone number is incorrectly formatted or does not contain "
+                + "an international code. Please correct the number and try again.",
+                msg.checkRecipientCell()
+        );
+    }
+    // RECIPIENT NUMBER TESTS
+    @Test
+    public void testRecipientNumberCorrectlyFormatted() {
+ 
+        Message msg = new Message(0, "+27718693002",
+                "Hi Mike, can you join us for dinner tonight?");
+ 
+        assertEquals(
+                "Cell phone number successfully captured.",
+                msg.checkRecipientCell()
+        );
+    }
+    
+    @Test
+    public void testMessageLengthFailure() {
+ 
+        // 255 characters, which is 5 over the limit
+        Message msg = new Message(0, "+27718693002", "a".repeat(255));
+ 
+        assertEquals(
+                "Message exceeds 250 characters by 5; please reduce the size.",
+                msg.text.length()
+        );
+    }
     
    @Test
     void validMessageID() {
