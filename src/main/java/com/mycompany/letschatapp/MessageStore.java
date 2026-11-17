@@ -257,5 +257,135 @@ public class MessageStore {
         return result;
     }
     
+    // ===== 2e. Delete a message using the message hash =====
+
+    public String deleteByHash(String hash) {
+        String deletedText = null;
+
+        int index = indexOfHash(sentMessages, sentCount, hash);
+        if (index >= 0) {
+            deletedText = sentMessages[index].getText();
+            shiftLeft(sentMessages, index, sentCount);
+            sentCount--;
+        } else {
+            index = indexOfHash(disregardedMessages, disregardedCount, hash);
+            if (index >= 0) {
+                deletedText = disregardedMessages[index].getText();
+                shiftLeft(disregardedMessages, index, disregardedCount);
+                disregardedCount--;
+            } else {
+                index = indexOfHash(storedMessages, storedCount, hash);
+                if (index >= 0) {
+                    deletedText = storedMessages[index].getText();
+                    shiftLeft(storedMessages, index, storedCount);
+                    storedCount--;
+                    rewriteStoreFile();   // so the message does not come back next run
+                }
+            }
+        }
+        if (deletedText == null) {
+            return "Message hash not found.";
+        }
+
+        // keep the hash and ID arrays in step with the message arrays
+        for (int i = 0; i < idCount; i++) {
+            if (messageHashes[i].equals(hash)) {
+                shiftLeft(messageHashes, i, idCount);
+                shiftLeft(messageIDs, i, idCount);
+                idCount--;
+                break;
+            }
+        }
+
+        return "Message: \"" + deletedText + "\" successfully deleted.";
+    }
     
+    private static int indexOfHash(Message[] list, int count, String hash) {
+        for (int i = 0; i < count; i++) {
+            if (list[i].getMessageHash().equals(hash)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // Saves the stored array back over the JSON file
+    private void rewriteStoreFile() {
+        try (FileWriter file = new FileWriter(storeFile, false)) {   // false = overwrite
+            for (int i = 0; i < storedCount; i++) {
+                file.write(storedMessages[i].toJson() + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println("Could not update the stored messages file.");
+        }
+    }
+    
+    // ===== 2f. Display a report with the full details of the messages =====
+
+    public String sentMessagesReport() {
+        return report("SENT MESSAGES REPORT", sentMessages, sentCount);
+    }
+
+    public String storedMessagesReport() {
+        return report("STORED MESSAGES REPORT", storedMessages, storedCount);
+    }
+
+    private String report(String title, Message[] list, int count) {
+        StringBuilder out = new StringBuilder("===== " + title + " =====\n");
+        if (count == 0) {
+            out.append("There are no messages.\n");
+        }
+        for (int i = 0; i < count; i++) {
+            out.append("\nMessage ").append(i + 1).append("\n")
+               .append("Message Hash: ").append(list[i].getMessageHash()).append("\n")
+               .append("Message ID: ").append(list[i].getMessageID()).append("\n")
+               .append("Sender: ").append(sender).append("\n")
+               .append("Recipient: ").append(list[i].getRecipient()).append("\n")
+               .append("Message: ").append(list[i].getText()).append("\n");
+        }
+        return out.toString();
+    }
+    
+    // ===== Array helpers (plain arrays, no ArrayList) =====
+
+    private static Message[] grow(Message[] old) {
+        Message[] bigger = new Message[old.length * 2];
+        for (int i = 0; i < old.length; i++) {
+            bigger[i] = old[i];
+        }
+        return bigger;
+    }
+
+    private static String[] grow(String[] old) {
+        String[] bigger = new String[old.length * 2];
+        for (int i = 0; i < old.length; i++) {
+            bigger[i] = old[i];
+        }
+        return bigger;
+    }
+    
+    // Removes the item at index by moving everything after it one place left
+    private static void shiftLeft(Object[] list, int index, int count) {
+        for (int i = index; i < count - 1; i++) {
+            list[i] = list[i + 1];
+        }
+        list[count - 1] = null;
+    }
+
+    private static String[] texts(Message[] list, int count) {
+        String[] result = new String[count];
+        for (int i = 0; i < count; i++) {
+            result[i] = list[i].getText();
+        }
+        return result;
+    }
+
+    private static String[] copyOf(String[] list, int count) {
+        String[] result = new String[count];
+        for (int i = 0; i < count; i++) {
+            result[i] = list[i];
+        }
+        return result;
+    }
+  
 }
