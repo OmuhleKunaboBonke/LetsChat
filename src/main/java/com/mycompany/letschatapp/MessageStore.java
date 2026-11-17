@@ -4,6 +4,11 @@
  */
 package com.mycompany.letschatapp;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  *
  * @author Student
@@ -71,5 +76,69 @@ public class MessageStore {
         } else {
             throw new IllegalArgumentException("Unknown flag: " + flag);
         }
+    }
+    
+    private void registerHashAndID(Message msg) {
+        if (idCount == messageHashes.length) {
+            messageHashes = grow(messageHashes);
+            messageIDs = grow(messageIDs);
+        }
+        messageHashes[idCount] = msg.getMessageHash();
+        messageIDs[idCount] = msg.getMessageID();
+        idCount++;
+    }
+    
+    /*
+     * Reads the stored messages from the JSON file into the stored array.
+     * The file has one JSON object per line (written by Message.toJson()), so each
+     * line is read and its quoted strings are picked out in order:
+     * "messageID", <id>, "messageHash", <hash>, "recipient", <number>, "message", <text>
+     */
+    public void loadStoredMessages() {
+        File file = new File(storeFile);
+        if (!file.exists()) {
+            return;   // nothing has been stored yet
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+                String[] parts = readJsonStrings(line);
+                if (parts != null) {
+                    addStored(new Message(parts[1], parts[3], parts[5], parts[7]));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Could not read the stored messages file.");
+        }
+    }
+    // Picks the first 8 quoted strings out of one line of JSON (handles \\ and \" escapes).
+    // Returns null if the line does not have all 8.
+    private static String[] readJsonStrings(String line) {
+        String[] found = new String[8];
+        int n = 0;
+        int i = 0;
+
+        while (i < line.length() && n < found.length) {
+            if (line.charAt(i) == '"') {
+                StringBuilder value = new StringBuilder();
+                i++;
+                while (i < line.length() && line.charAt(i) != '"') {
+                    char c = line.charAt(i);
+                    if (c == '\\' && i + 1 < line.length()) {
+                        i++;
+                        c = line.charAt(i);
+                    }
+                    value.append(c);
+                    i++;
+                }
+                found[n++] = value.toString();
+            }
+            i++;
+        }
+        return n == found.length ? found : null;
     }
 }
