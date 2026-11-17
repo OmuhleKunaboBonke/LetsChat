@@ -21,11 +21,11 @@ public class Message {
     private static final Random r = new Random();
    
  
-    private String messageID;     //random 10 digit number
-    private int messageNumber;     //loop counter value
-    private String recipient;      //cell phone number of the receiver
-    String text;           //actual message
-    private String hash;           //e.g. 00:0:HIBOSS
+    private final String messageID;     //random 10 digit number
+    private final int messageNumber;     //loop counter value
+    private final String recipient;      //cell phone number of the receiver
+    private final String text;           //actual message
+    private final String hash;           //e.g. 00:0:HIBOSS
     
     // Shared by all messages
     // Text of every message sent so far (built up as a single String)
@@ -33,9 +33,24 @@ public class Message {
     // How many messages have been sent so far
     private static int totalSent = 0;
     
-    public Message(int messageNumber, String recipient, String text){
-        this.messageID = String.valueOf(1000000000L + r.nextInt(900000000));
+    // Normal constructor: the message ID is generated automatically
+    public Message(int messageNumber, String recipient, String text) {
+        this(generateMessageID(), messageNumber, recipient, text);
+    }
 
+    // Builds a 10 digit message ID one digit at a time by adding to a String.
+    // Leading zeros are allowed, so an ID (and its hash) can start with 00.
+    private static String generateMessageID() {
+        String id = "";
+        for (int i = 0; i < 10; i++) {
+            id = id + r.nextInt(10);
+        }
+        return id;
+    }
+    
+    // Constructor that takes a message ID (used by the unit tests so hashes are predictable)
+    public Message(String messageID, int messageNumber, String recipient, String text){
+       
         this.messageID = messageID;
         this.messageNumber = messageNumber;
         this.recipient = recipient;
@@ -44,15 +59,65 @@ public class Message {
         
     }
 
-    Message(String id, int i, String recipient, String text) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
     // 1. Check message ID
     public boolean checkMessageID() {
         return messageID != null && messageID.length() <= 10;
     }
     
-    // Recipient must start with the international code +27 followed by 9 digits
+    // Used when a stored message is read back from the JSON file,
+    // so the original ID and hash are kept exactly as they were saved
+    public Message(String messageID, String hash, String recipient, String text) {
+        this.messageID = messageID;
+        this.messageNumber = numberFromHash(hash);
+        this.recipient = recipient;
+        this.text = text;
+        this.hash = hash;
+    }
+    
+    // The message number is the middle part of the hash, e.g. 00:0:HITONIGHT gives 0
+    private static int numberFromHash(String hash) {
+        String[] parts = hash.split(":");
+        if (parts.length >= 2) {
+            try {
+                return Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    public String getMessageID() {
+        return messageID;
+    }
+
+    public String getMessageHash() {
+        return hash;
+    }
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    // Reports the generated message ID
+    public String displayMessageID() {
+        return "Message ID generated: " + messageID;
+    }
+
+    // Message must not be more than 250 characters
+    public String checkMessageLength() {
+        if (text.length() <= 250) {
+            return "Message ready to send.";
+        }
+        return "Message exceeds 250 characters by " + (text.length() - 250)
+                + "; please reduce the size.";
+    }
+    
+    // 2. Recipient must start with the international code +27 followed by 9 digits
     public String checkRecipientCell() {
         String phoneRegex = "^\\+27[0-9]{9}$";
  
@@ -66,15 +131,14 @@ public class Message {
      // 3. Create message hash
     public String createMessageHash() {
         String[] words = text.trim().split("\\s+");
-        String firstWord = words[0];
-        String lastWord = words[words.length - 1];
- 
+        // punctuation is removed, e.g. "tonight?" becomes "tonight"
+        String firstWord = words[0].replaceAll("[^A-Za-z0-9]", "");
+        String lastWord = words[words.length - 1].replaceAll("[^A-Za-z0-9]", "");
+
         return (messageID.substring(0, 2) + ":" + messageNumber + ":"
                 + firstWord + lastWord).toUpperCase();
     }
 
-    
-    
      // 4. Send, store or disregard message
     public String SentMessage(int option) {
         if (option == 1) {
@@ -118,15 +182,18 @@ public class Message {
      * Available at: https://www.rfc-editor.org/info/std90
      * (Accessed: 17 October 2026).
      */
+    
+    public String toJson() {
+        return "{\"messageID\": \"" + escapeJson(messageID) + "\", "
+                + "\"messageHash\": \"" + escapeJson(hash) + "\", "
+                + "\"recipient\": \"" + escapeJson(recipient) + "\", "
+                + "\"message\": \"" + escapeJson(text) + "\"}";
+    }
+    
+ 
     public void storeMessage() {
-        String json = "{\"messageID\": \"" + messageID + "\", "
-                + "\"messageHash\": \"" + hash + "\", "
-                + "\"recipient\": \"" + recipient + "\", "
-                + "\"message\": \"" + text.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}";
-        try {
-            FileWriter file = new FileWriter("messages.json", true);   // true = add to end
-            file.write(json + "\n");
-            file.close();
+        try (FileWriter file = new FileWriter(STORE_FILE, true)) {   // true = add to end
+            file.write(toJson() + "\n");
         } catch (IOException e) {
             System.out.println("Could not save the message.");
         }
