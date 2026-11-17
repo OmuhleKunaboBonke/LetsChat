@@ -180,4 +180,82 @@ public class MessageStore {
         }
         return out.toString();
     }
+    
+    // ===== 2b. Display the longest stored message =====
+
+    public String longestStoredMessage() {
+        if (storedCount == 0) {
+            return "There are no stored messages.";
+        }
+        Message longest = storedMessages[0];
+        for (int i = 1; i < storedCount; i++) {
+            if (storedMessages[i].getText().length() > longest.getText().length()) {
+                longest = storedMessages[i];
+            }
+        }
+        return longest.getText();
+    }
+
+    // ===== 2c. Search for a message ID =====
+
+    // Looks through the sent, disregarded and stored arrays. Returns null if not found.
+    public Message findByMessageID(String messageID) {
+        Message found = searchID(sentMessages, sentCount, messageID);
+        if (found == null) {
+            found = searchID(disregardedMessages, disregardedCount, messageID);
+        }
+        if (found == null) {
+            found = searchID(storedMessages, storedCount, messageID);
+        }
+        return found;
+    }
+
+    public String displayByMessageID(String messageID) {
+        Message found = findByMessageID(messageID);
+        if (found == null) {
+            return "Message ID not found.";
+        }
+        return "Recipient: " + found.getRecipient() + "\nMessage: " + found.getText();
+    }
+
+    private static Message searchID(Message[] list, int count, String messageID) {
+        for (int i = 0; i < count; i++) {
+            if (list[i].getMessageID().equals(messageID)) {
+                return list[i];
+            }
+        }
+        return null;
+    }
+    
+     // ===== 2d. Search all the messages sent or stored for a particular recipient =====
+
+    public String[] searchByRecipient(String recipient) {
+        int matches = 0;
+        for (int i = 0; i < sentCount; i++) {
+            if (sentMessages[i].getRecipient().equals(recipient)) {
+                matches++;
+            }
+        }
+        for (int i = 0; i < storedCount; i++) {
+            if (storedMessages[i].getRecipient().equals(recipient)) {
+                matches++;
+            }
+        }
+
+        String[] result = new String[matches];
+        int next = 0;
+        for (int i = 0; i < sentCount; i++) {
+            if (sentMessages[i].getRecipient().equals(recipient)) {
+                result[next++] = sentMessages[i].getText();
+            }
+        }
+        for (int i = 0; i < storedCount; i++) {
+            if (storedMessages[i].getRecipient().equals(recipient)) {
+                result[next++] = storedMessages[i].getText();
+            }
+        }
+        return result;
+    }
+    
+    
 }
