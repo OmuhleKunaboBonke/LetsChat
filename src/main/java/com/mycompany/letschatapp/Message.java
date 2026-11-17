@@ -14,6 +14,10 @@ import java.util.Random;
  * @author Student
  */
 public class Message {
+    
+    // File that stored messages are saved to (one JSON object per line)
+    public static final String STORE_FILE = "messages.json";
+    
     private static final Random r = new Random();
    
  
