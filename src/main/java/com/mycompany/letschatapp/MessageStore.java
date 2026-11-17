@@ -141,4 +141,43 @@ public class MessageStore {
         }
         return n == found.length ? found : null;
     }
+    
+    // ===== Read-only views of the arrays (exact size, message text only) =====
+
+    public String[] getSentMessages() {
+        return texts(sentMessages, sentCount);
+    }
+
+    public String[] getDisregardedMessages() {
+        return texts(disregardedMessages, disregardedCount);
+    }
+
+    public String[] getStoredMessages() {
+        return texts(storedMessages, storedCount);
+    }
+
+    public String[] getMessageHashes() {
+        return copyOf(messageHashes, idCount);
+    }
+
+    public String[] getMessageIDs() {
+        return copyOf(messageIDs, idCount);
+    }
+    
+    // ===== 2a. Display the sender and recipient of all stored messages =====
+
+    public String displaySenderAndRecipient() {
+        if (storedCount == 0) {
+            return "There are no stored messages.";
+        }
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < storedCount; i++) {
+            if (i > 0) {
+                out.append("\n");
+            }
+            out.append("Sender: ").append(sender)
+               .append(" | Recipient: ").append(storedMessages[i].getRecipient());
+        }
+        return out.toString();
+    }
 }
