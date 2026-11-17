@@ -74,6 +74,10 @@ public class LetsChatApp {
     //Part 2
     public static void runQuickChat(Scanner input) {
         System.out.println("\nWelcome to QuickChat.");
+        
+        // arrays for sent, disregarded and stored messages (stored ones are read from the JSON file)
+        MessageStore store = new MessageStore(sender);
+        store.loadStoredMessages(); 
  
         // how many messages the user wants to enter
         int limit = 0;
@@ -98,6 +102,7 @@ public class LetsChatApp {
             System.out.println("\n1) Send Messages");
             System.out.println("2) Show recently sent messages");
             System.out.println("3) Quit");
+            System.out.println("4) Stored Messages");
             String choice = input.nextLine().trim();
  
             if (choice.equals("1")) {
@@ -118,11 +123,28 @@ public class LetsChatApp {
                 System.out.println("Coming Soon.");
             } else if (choice.equals("3")) {
                 running = false;
-            } else {
-                System.out.println("Please enter 1, 2 or 3.");
+            } else if (choice.equals("4")) {
+                runStoredMessagesMenu(input, store);
+            }else {
+                System.out.println("Please enter 1, 2, 3 or 4.");
             }
         }
     }
+    
+    // Fourth main menu option: works with the message arrays
+    private static void runStoredMessagesMenu(Scanner input, MessageStore store) {
+
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n===== STORED MESSAGES =====");
+            System.out.println("1) Display the sender and recipient of all stored messages");
+            System.out.println("2) Display the longest stored message");
+            System.out.println("3) Search for a message ID");
+            System.out.println("4) Search for all messages sent or stored for a recipient");
+            System.out.println("5) Delete a message using its message hash");
+            System.out.println("6) Display a report of all messages");
+            System.out.println("7) Back to main menu");
+            String choice = input.nextLine().trim();
  
     // Captures, validates and handles ONE message. i = loop counter (message number).
     private static void captureMessage(Scanner input, int i) {
@@ -131,7 +153,7 @@ public class LetsChatApp {
         boolean valid = false;
  
         while (!valid) {
-            System.out.print("Recipient cell number: ");
+            System.out.print("Recipient cell number (must begin with '+27': ");
             String number = input.nextLine().trim();
             System.out.print("Message: ");
             String text = input.nextLine();
