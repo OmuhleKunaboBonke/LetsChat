@@ -74,10 +74,11 @@ public class LetsChatApp {
     //Part 2
     public static void runQuickChat(Scanner input) {
         System.out.println("\nWelcome to QuickChat.");
+        String sender = null;
         
         // arrays for sent, disregarded and stored messages (stored ones are read from the JSON file)
         MessageStore store = new MessageStore(sender);
-        store.loadStoredMessages(); 
+        store.loadStoredMessages();
  
         // how many messages the user wants to enter
         int limit = 0;
@@ -113,7 +114,6 @@ public class LetsChatApp {
                     // FOR loop: only the set number of messages can be entered
                     for (int i = 0; i < limit; i++) {
                         System.out.println("\n--- Message " + (i + 1) + " of " + limit + " ---");
-                        captureMessage(input, i);
                     }
                     messagesEntered = true;
                     System.out.println("\nTotal messages sent: " + Message.returnTotalMessages());
@@ -145,9 +145,46 @@ public class LetsChatApp {
             System.out.println("6) Display a report of all messages");
             System.out.println("7) Back to main menu");
             String choice = input.nextLine().trim();
+            
+            if (choice.equals("1")) {
+                System.out.println(store.displaySenderAndRecipient());
+
+            } else if (choice.equals("2")) {
+                System.out.println(store.longestStoredMessage());
+
+            } else if (choice.equals("3")) {
+                System.out.print("Enter the message ID: ");
+                System.out.println(store.displayByMessageID(input.nextLine().trim()));
+
+            } else if (choice.equals("4")) {
+                System.out.print("Enter the recipient's cell number: ");
+                String[] found = store.searchByRecipient(input.nextLine().trim());
+                if (found.length == 0) {
+                    System.out.println("No messages found for that recipient.");
+                }
+                for (int i = 0; i < found.length; i++) {
+                    System.out.println("\"" + found[i] + "\"");
+                }
+
+            }else if (choice.equals("5")) {
+                System.out.print("Enter the message hash: ");
+                System.out.println(store.deleteByHash(input.nextLine().trim()));
+
+            } else if (choice.equals("6")) {
+                System.out.println(store.sentMessagesReport());
+                System.out.println(store.storedMessagesReport());
+
+            } else if (choice.equals("7")) {
+                back = true;
+            } else {
+                System.out.println("Please enter a number from 1 to 7.");
+            }
+        }
+    }
+       
  
     // Captures, validates and handles ONE message. i = loop counter (message number).
-    private static void captureMessage(Scanner input, int i) {
+    private static void captureMessage(Scanner input, int i,  MessageStore store) {
  
         Message msg = null;
         boolean valid = false;
@@ -168,43 +205,55 @@ public class LetsChatApp {
                 continue;
             }
             msg = new Message(i, number, text);
+            
+            // message length is checked here (250 characters maximum)
+            String lengthCheck = msg.checkMessageLength();
+            System.out.println(lengthCheck);
+            if (!lengthCheck.equals("Message ready to send.")) {
+                continue;
+            }
+            
             String cellCheck = msg.checkRecipientCell();
             System.out.println(cellCheck);
             valid = cellCheck.startsWith("Cell phone number successfully");
         }
  
-        System.out.println("Message sent");
- 
         // send, disregard or store?
-        String status = "";
-        boolean done = false;
-        while (!done) {
+         int option = 0;
+        while (option == 0) {
             System.out.println("1) Send Message");
             System.out.println("2) Disregard Message");
             System.out.println("3) Store Message to send later");
-            String option = input.nextLine().trim();
- 
-            int number = 0;
-            if (option.equals("1")) number = 1;
-            else if (option.equals("2")) number = 2;
-            else if (option.equals("3")) number = 3;
- 
-            status = msg.SentMessage(number);
-            System.out.println(status);
-            done = number != 0;
+            String answer = input.nextLine().trim();
+
+            if (answer.equals("1")) option = 1;
+            else if (answer.equals("2")) option = 2;
+            else if (answer.equals("3")) option = 3;
+            else System.out.println("Please enter 1, 2 or 3.");
         }
- 
+
+        String status = msg.SentMessage(option);
+        System.out.println(status);
+
+        // put the message into the array that matches what the user chose
+        if (option == 1) {
+            store.addSent(msg);
+        } else if (option == 2) {
+            store.addDisregarded(msg);
+        } else {
+            store.addStored(msg);
+        }
+
         if (status.equals("Press 0 to delete the message.")) {
             if (input.nextLine().trim().equals("0")) {
                 System.out.println("Message deleted.");
             }
         }
- 
+
         // show the full details of the messages sent so far
         if (status.equals("Message successfully sent.")) {
             System.out.println("\nFull details of messages sent:");
             System.out.println(Message.printMessages());
         }
-       
     }
 }
