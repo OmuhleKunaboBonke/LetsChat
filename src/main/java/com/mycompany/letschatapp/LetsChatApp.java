@@ -125,7 +125,8 @@ public class LetsChatApp {
                 }
 
             } else if (choice.equals("2")) {
-                System.out.println("Coming Soon.");
+                System.out.println("\n===== RECENTLY SENT MESSAGES =====");
+                System.out.println(Message.printMessages());
 
             } else if (choice.equals("3")) {
                 running = false;

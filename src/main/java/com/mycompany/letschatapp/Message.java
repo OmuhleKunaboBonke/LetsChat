@@ -192,7 +192,7 @@ public class Message {
     
  
     public void storeMessage() {
-        try (FileWriter file = new FileWriter(STORE_FILE, true)) {   // true = add to end
+        try (FileWriter file = new FileWriter("messages.json", true)) {   // true = add to end
             file.write(toJson() + "\n");
         } catch (IOException e) {
             System.out.println("Could not save the message.");
