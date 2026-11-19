@@ -1,5 +1,11 @@
 package com.mycompany.letschatapp;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -190,7 +196,216 @@ public class MessageStore {
         return out.toString();
     }
 
+    // ===== 2b. Display the longest stored message =====
 
+    public String longestStoredMessage() {
+        if (storedCount == 0) {
+            return "There are no stored messages.";
+        }
+        Message longest = storedMessages[0];
+        for (int i = 1; i < storedCount; i++) {
+            if (storedMessages[i].getText().length() > longest.getText().length()) {
+                longest = storedMessages[i];
+            }
+        }
+        return longest.getText();
+    }
+
+    // ===== 2c. Search for a message ID =====
+
+    // Searches the message ID array; the same index in the message array is the message.
+    // Returns null if the ID is not found.
+    public Message findByMessageID(String messageID) {
+        for (int i = 0; i < idCount; i++) {
+            if (messageIDs[i].equals(messageID)) {
+                return allMessages[i];
+            }
+        }
+        return null;
+    }
+
+    public String displayByMessageID(String messageID) {
+        Message found = findByMessageID(messageID);
+        if (found == null) {
+            return "Message ID not found.";
+        }
+        return "Recipient: " + found.getRecipient() + "\nMessage: " + found.getText();
+    }
+
+    // ===== 2d. Search all the messages sent or stored for a particular recipient =====
+
+    public String[] searchByRecipient(String recipient) {
+        int matches = 0;
+        for (int i = 0; i < sentCount; i++) {
+            if (sentMessages[i].getRecipient().equals(recipient)) {
+                matches++;
+            }
+        }
+        for (int i = 0; i < storedCount; i++) {
+            if (storedMessages[i].getRecipient().equals(recipient)) {
+                matches++;
+            }
+        }
+
+        String[] result = new String[matches];
+        int next = 0;
+        for (int i = 0; i < sentCount; i++) {
+            if (sentMessages[i].getRecipient().equals(recipient)) {
+                result[next++] = sentMessages[i].getText();
+            }
+        }
+        for (int i = 0; i < storedCount; i++) {
+            if (storedMessages[i].getRecipient().equals(recipient)) {
+                result[next++] = storedMessages[i].getText();
+            }
+        }
+        return result;
+    }
+
+    // ===== 2e. Delete a message using the message hash =====
+
+    public String deleteByHash(String hash) {
+
+        // find the hash in the parallel array
+        int position = -1;
+        for (int i = 0; i < idCount; i++) {
+            if (messageHashes[i].equals(hash)) {
+                position = i;
+                break;
+            }
+        }
+        if (position < 0) {
+            return "Message hash not found.";
+        }
+
+        Message msg = allMessages[position];
+
+        // remove it from whichever message array it is in
+        int index = indexOfMessage(sentMessages, sentCount, msg);
+        if (index >= 0) {
+            shiftLeft(sentMessages, index, sentCount);
+            sentCount--;
+        } else {
+            index = indexOfMessage(disregardedMessages, disregardedCount, msg);
+            if (index >= 0) {
+                shiftLeft(disregardedMessages, index, disregardedCount);
+                disregardedCount--;
+            } else {
+                index = indexOfMessage(storedMessages, storedCount, msg);
+                if (index >= 0) {
+                    shiftLeft(storedMessages, index, storedCount);
+                    storedCount--;
+                    rewriteStoreFile();   // so the message does not come back next run
+                }
+            }
+        }
+
+        // remove it from the three parallel arrays
+        shiftLeft(allMessages, position, idCount);
+        shiftLeft(messageHashes, position, idCount);
+        shiftLeft(messageIDs, position, idCount);
+        idCount--;
+
+        return "Message: \"" + msg.getText() + "\" successfully deleted.";
+    }
+
+    private static int indexOfMessage(Message[] list, int count, Message msg) {
+        for (int i = 0; i < count; i++) {
+            if (list[i] == msg) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // Saves the stored array back over the JSON file, inside one JSON array
+    private void rewriteStoreFile() {
+        StringBuilder out = new StringBuilder();
+        if (storedCount == 0) {
+            out.append("[]\n");
+        } else {
+            out.append("[\n");
+            for (int i = 0; i < storedCount; i++) {
+                out.append("  ").append(storedMessages[i].toJson());
+                out.append(i < storedCount - 1 ? ",\n" : "\n");
+            }
+            out.append("]\n");
+        }
+
+        try (FileWriter file = new FileWriter(storeFile, false)) {   // false = overwrite
+            file.write(out.toString());
+        } catch (IOException e) {
+            System.out.println("Could not update the stored messages file.");
+        }
+    }
+
+    // ===== 2f. Display a report with the full details of the messages =====
+
+    public String sentMessagesReport() {
+        return report("SENT MESSAGES REPORT", sentMessages, sentCount);
+    }
+
+    public String storedMessagesReport() {
+        return report("STORED MESSAGES REPORT", storedMessages, storedCount);
+    }
+
+    private String report(String title, Message[] list, int count) {
+        StringBuilder out = new StringBuilder("===== " + title + " =====\n");
+        if (count == 0) {
+            out.append("There are no messages.\n");
+        }
+        for (int i = 0; i < count; i++) {
+            out.append("\nMessage ").append(i + 1).append("\n")
+               .append("Message Hash: ").append(list[i].getMessageHash()).append("\n")
+               .append("Message ID: ").append(list[i].getMessageID()).append("\n")
+               .append("Sender: ").append(sender).append("\n")
+               .append("Recipient: ").append(list[i].getRecipient()).append("\n")
+               .append("Message: ").append(list[i].getText()).append("\n");
+        }
+        return out.toString();
+    }
+
+    // ===== Array helpers (plain arrays, no ArrayList) =====
+
+    private static Message[] grow(Message[] old) {
+        Message[] bigger = new Message[old.length * 2];
+        for (int i = 0; i < old.length; i++) {
+            bigger[i] = old[i];
+        }
+        return bigger;
+    }
+
+    private static String[] grow(String[] old) {
+        String[] bigger = new String[old.length * 2];
+        for (int i = 0; i < old.length; i++) {
+            bigger[i] = old[i];
+        }
+        return bigger;
+    }
+
+    // Removes the item at index by moving everything after it one place left
+    private static void shiftLeft(Object[] list, int index, int count) {
+        for (int i = index; i < count - 1; i++) {
+            list[i] = list[i + 1];
+        }
+        list[count - 1] = null;
+    }
+
+    private static String[] texts(Message[] list, int count) {
+        String[] result = new String[count];
+        for (int i = 0; i < count; i++) {
+            result[i] = list[i].getText();
+        }
+        return result;
+    }
+
+    private static String[] copyOf(String[] list, int count) {
+        String[] result = new String[count];
+        for (int i = 0; i < count; i++) {
+            result[i] = list[i];
+        }
+        return result;
+    }
 }
 
     
